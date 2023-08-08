@@ -20,96 +20,192 @@ class offerwalls extends Controller
 {
   //    Adgatemedia
   // ******************************************************
-  public function adgatemediapostback(Request $request)
-  {
-    $user_id = $request->input('user_id');
-    $user = User::where('user_id', $user_id)->first();
-    if ($user) {
-      $id = $user->id;
-    } else {
-      $id = 1;
+  public function adgatemediapostback(Request $request){
+        $user_id = $request->input('user_id');
+        $user = User::where('user_id',$user_id)->first();
+        if($user){
+            $id = $user->id;
+        }
+        else{
+            $id = 1;
+        }
+
+
+        $values = [
+            'offerwall_name'=>"Adgate Media",
+            'user'=>$id,
+            'user_id'=>$request->input('user_id'),
+            'conversion_id'=>$request->input('conversion_id'),
+            'point_value'=>$request->input('point_value'),
+            'usd_value'=>$request->input('usd_value'),
+            'offer_title'=>$request->input('offer_title')
+        ];
+
+        $status = offerwall::updateorCreate($values);
+        if ($status){
+            $response = [
+                'status'=>'OK'
+            ];
+            return response()->json($response,200);
+        }
+        else{
+            $response = [
+                'status'=>'Something Wrong'
+            ];
+        }
+        return response()->json($response,400);
+    }
+    public function offertoro(Request $request){
+        $offer_conversion_id = $request->input('oid');
+        $user_id = $request->input('user_id');
+        $user = User::where('user_id',$user_id)->first();
+        if($user){
+            $id = $user->id;
+        }
+
+        $values = [
+            'offerwall_name'=>"OfferToro",
+            'user'=>$id,
+            'user_id'=>$request->input('user_id'),
+            'conversion_id'=>$offer_conversion_id,
+            'point_value'=>$request->input('amount'),
+            'usd_value'=>$request->input('payout'),
+            'offer_title'=>$request->input('o_name')
+        ];
+
+        $status = offerwall::updateorCreate($values);
+        if ($status){
+            return 1;
+        }
+        else{
+            return 0;
+        }
+
+    }
+    public function ayetstudio(Request $request){
+        $offer_conversion_id = $request->input('transaction_id');
+        $user_id = $request->input('user_id');
+        $user = User::where('user_id',$user_id)->first();
+        if($user){
+            $id = $user->id;
+        }
+
+        $values = [
+            'offerwall_name'=>"eyeTStudio",
+            'user'=>$id,
+            'user_id'=>$request->input('user_id'),
+            'conversion_id'=>$offer_conversion_id,
+            'point_value'=>$request->input('amount'),
+//            'usd_value'=>$request->input('payout'),
+            'offer_title'=>$request->input('offer_name')
+        ];
+
+        $status = offerwall::updateorCreate($values);
+        if ($status){
+            $response = [
+                'status'=>'OK'
+            ];
+            return response()->json($response,200);
+        }
+        else{
+            $response = [
+                'status'=>'Something Wrong'
+            ];
+            return response()->json($response,404);
+        }
+
+    }
+
+    public function lootably(Request $request){
+        $offer_conversion_id = $request->input('transactionID');
+        $user_id = $request->input('userID');
+        $user = User::where('user_id',$user_id)->first();
+        if($user){
+            $id = $user->id;
+        }
+        else{
+            return "0";
+        }
+
+        $values = [
+            'offerwall_name'=>"Lootably",
+            'user'=>$id,
+            'user_id'=>$user_id,
+            'conversion_id'=>$offer_conversion_id,
+            'point_value'=>$request->input('amount'),
+            'usd_value'=>$request->input('usd_value'),
+            'offer_title'=>$request->input('offerName')
+        ];
+
+        $status = offerwall::updateorCreate($values);
+        if ($status){
+            return "1";
+        }
+        else{
+            return "0";
+        }
+
+    }
+    public function cpx_research(Request $request){
+        $offer_conversion_id = $request->input('transaction_id');
+        $user_id = $request->input('user_id');
+        $user = User::where('user_id',$user_id)->first();
+        if($user){
+            $id = $user->id;
+        }
+        else{
+            return "0";
+        }
+
+        $values = [
+            'offerwall_name'=>"cpx_research",
+            'user'=>$id,
+            'user_id'=>$user_id,
+            'conversion_id'=>$offer_conversion_id,
+            'point_value'=>$request->input('amount'),
+            'usd_value'=>$request->input('usd_value'),
+//            'offer_title'=>$request->input('offerName')
+        ];
+
+        $status = offerwall::updateorCreate($values);
+        if ($status){
+            return "1";
+        }
+        else{
+            return "0";
+        }
+
     }
 
 
-    $values = [
-      'user' => $id,
-      'user_id' => $request->input('user_id'),
-      'conversion_id' => $request->input('conversion_id'),
-      'point_value' => $request->input('point_value'),
-      'usd_value' => $request->input('usd_value'),
-      'offer_title' => $request->input('offer_title')
-    ];
 
-    $status = offerwall::updateorCreate($values);
-    if ($status) {
-      $response = [
-        'status' => 'OK'
-      ];
-      return response()->json($response, 200);
-    } else {
-      $response = [
-        'status' => 'Something Wrong'
-      ];
+
+    //    AdGem
+    // ******************************************************
+    public function adgem(Request $request){
+//        $values = [
+//            'user_id'=>$request->input('user_id'),
+//            'conversion_id'=>$request->input('conversion_id'),
+//            'point_value'=>$request->input('point_value'),
+//            'usd_value'=>$request->input('usd_value'),
+//            'offer_title'=>$request->input('offer_title')
+//        ];
+
+//        $status = offerwall::updateorCreate($values);
+//        if ($status){
+        $response = [
+            'status'=>'OK'
+        ];
+        return response()->json($response,200);
+//        }
+//        else{
+//            $response = [
+//                'status'=>'Something Wrong'
+//            ];
+//        }
+//        return response()->json($response,400);
+
     }
-    return response()->json($response, 400);
-  }
-
-
-
-  //    AdGem
-  // ******************************************************
-  public function adgem(Request $request)
-  {
-    //        $values = [
-    //            'user_id'=>$request->input('user_id'),
-    //            'conversion_id'=>$request->input('conversion_id'),
-    //            'point_value'=>$request->input('point_value'),
-    //            'usd_value'=>$request->input('usd_value'),
-    //            'offer_title'=>$request->input('offer_title')
-    //        ];
-
-    //        $status = offerwall::updateorCreate($values);
-    //        if ($status){
-    $response = [
-      'status' => 'OK'
-    ];
-    return response()->json($response, 200);
-    //        }
-    //        else{
-    //            $response = [
-    //                'status'=>'Something Wrong'
-    //            ];
-    //        }
-    //        return response()->json($response,400);
-
-  }
-
-
-
-  public function lootably(Request $request)
-  {
-    //        $values = [
-    //            'user_id'=>$request->input('user_id'),
-    //            'conversion_id'=>$request->input('conversion_id'),
-    //            'point_value'=>$request->input('point_value'),
-    //            'usd_value'=>$request->input('usd_value'),
-    //            'offer_title'=>$request->input('offer_title')
-    //        ];
-
-    //        $status = offerwall::updateorCreate($values);
-    //        if ($status){
-    $response = [
-      'status' => 'OK'
-    ];
-    return response()->json($response, 200);
-    //        }
-    //        else{
-    //            $response = [
-    //                'status'=>'Something Wrong'
-    //            ];
-    //        }
-    //        return response()->json($response,400);
-  }
 
 
 
