@@ -102,6 +102,7 @@ class TaskController extends Controller
                 $taskListByDay[] = [
                     'day' => $day,
                     'claimed' => $claimedStatus,
+                    'current_day' => $day === $currentDay,
                     'task_list' => $taskList,
                 ];
             }
@@ -110,7 +111,7 @@ class TaskController extends Controller
         }
 
         return response()->json(['tasks' => []], 200);
-    } 
+    }
 
 
     public function claimTask(Request $request) {
