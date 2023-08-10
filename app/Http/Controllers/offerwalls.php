@@ -18,6 +18,29 @@ use Illuminate\Testing\Fluent\Concerns\Has;
 
 class offerwalls extends Controller
 {
+
+  public function getAllOffers(Request $request)
+  {
+      $pageSize = $request->input('page_size', 20); // Default page size is 20
+      $offers = offerwall::paginate($pageSize);
+
+      $totalPages = $offers->lastPage();
+
+      $response = [
+          'current_page' => $offers->currentPage(),
+          'data' => $offers->items(),
+          'from' => $offers->firstItem(),
+          'last_page' => $totalPages,
+          'per_page' => $offers->perPage(),
+          'to' => $offers->lastItem(),
+          'total' => $offers->total(),
+          'total_pages' => $totalPages,
+      ];
+
+      return response()->json($response, 200);
+  }
+
+
   //    Adgatemedia
   // ******************************************************
   public function adgatemediapostback(Request $request){
