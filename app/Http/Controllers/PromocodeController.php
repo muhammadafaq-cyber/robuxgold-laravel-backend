@@ -64,11 +64,7 @@ class PromocodeController extends Controller
             ];
             return response()->json($response, 500);
         }
-    }
-
-
-
-
+    } 
 
     public function deletepromocode($id){
         $msg = DB::table('promocodes')->where('id',$id)->delete();
@@ -124,63 +120,78 @@ class PromocodeController extends Controller
 
 
 
-    public function claim_promocode(Request $request){
-        $validator = Validator::make($request->all(),[
-            'user_id'=>'required',
+    public function claim_promocode(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required',
             'promocode' => 'required'
         ]);
-        if ($validator->fails()){
-            $response =[
-                'success'=>false,
-                'message'=>$validator->errors()
-            ];
-            return response()->json($response,404);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()
+            ], 400);
         }
 
         $promocode = $request->promocode;
         $user_id = $request->user_id;
 
-        $promo = promocode::where('promocode',$promocode)->first();
-        if ($promo){
-            $check_already =  user_promocode::where('promocode',$promocode)->where('user_id',$user_id)->first();
-            if ($check_already){
-                $response = [
-                    'success' => false,
-                    'message'=>'You have already claimed this promocode !'
-                ];
-                return response()->json($response,404);
-            }
-            else{
-                $status = DB::table('user_promocodes')->insert(['promocode'=>$promo->promocode, 'user_id'=>$user_id]);
-                $user = User::where('user_id',$user_id)->first();
+        $promo = Promocode::where('promocode', $promocode)->first();
 
-
-                if ($status and $user){
-                    $new_blanace = $user->balance+$promo->value;
-
-
-                    DB::table('users')->where('user_id',$user_id)->update(['balance'=> $new_blanace]);
-                    $response = [
-                        'success' => true,
-                        'message'=>'Promocode successfully Claimed !'
-                    ];
-                    return response()->json($response,202);
-                }
-                else{
-                    $response = [
-                        'success' => false,
-                        'message'=>'Something went wrong !'
-                    ];
-                    return response()->json($response,404);
-                }
-            }
-        }
-        else{
-            $response = [
+        if (!$promo) {
+            return response()->json([
                 'success' => false,
-                'message'=>'Wrong Promocode !'
-            ];
-            return response()->json($response,404);
+                'message' => 'Wrong Promocode!'
+            ], 404);
+        }
+
+        $check_already = user_promocode::where('promocode', $promocode)
+            ->where('user_id', $user_id)
+            ->exists();
+
+        if ($check_already) {
+            return response()->json([
+                'success' => true,  // Change this to true to indicate success
+                'message' => 'You have already claimed this promocode!'
+            ], 209); // Custom positive status code
+        }
+
+        $user = User::find($user_id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $user->balance += $promo->value;
+            $user->save();
+
+            UserPromocode::create([
+                'promocode' => $promo->promocode,
+                'user_id' => $user_id
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Promocode successfully claimed!'
+            ], 202);
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong!'
+            ], 500);
         }
     }
+
+
 }
