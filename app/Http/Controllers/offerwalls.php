@@ -442,14 +442,14 @@ class offerwalls extends Controller
           'message' => "New Member !",
           'member_count' => giveaway::all()->count()
         ];
-        return response()->json($response, 202);
+        return response()->json($response, 201);
       } else {
         $response = [
           'success' => false,
           'message' => "Already Exists",
           'member_count' => giveaway::all()->count()
         ];
-        return response()->json($response, 404);
+        return response()->json($response, 200);
       }
     }
     $response = [
