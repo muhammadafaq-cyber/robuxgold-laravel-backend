@@ -85,13 +85,9 @@ class TaskController extends Controller
         $user = User::where('user_id', $user_id)->first();
 
         if ($user) {
-            $start_date = $user->start_date;
-            $end_date = $user->end_date;
-            $currentDay = $currentDate->diffInDays($start_date) + 1; // Calculate the current day
-
             $taskListByDay = [];
-
             $anyClaimed = false; // Flag to track if any task is claimed
+            $activeDaySet = false; // Flag to track if the active day has been set
 
             for ($day = 1; $day <= 7; $day++) {
                 $taskList = task_detail::where('user_id', $user_id)->where('day', $day)->get();
@@ -106,25 +102,29 @@ class TaskController extends Controller
                     $anyClaimed = true; // Set the flag if any day is claimed
                 }
 
+                // Check if the active day has been set, and set only the first day as active
+                $currentDayStatus = !$activeDaySet && $currentDate->isSameDay(now());
+                $activeDaySet = $activeDaySet || $currentDayStatus;
+
                 $taskListByDay[] = [
                     'day' => $day,
                     'claimed' => $claimedStatus,
-                    'current_day' => $day === $currentDay,
+                    'current_day' => $currentDayStatus,
                     'task_list' => $taskList,
                 ];
             }
 
-            // If none of the days are claimed or have tasks, make day 1 the current day
-            if (!$anyClaimed && empty($taskListByDay[$currentDay - 1]['task_list'])) {
-                $taskListByDay[$currentDay - 1]['current_day'] = true;
+            // If none of the days are claimed or have tasks, make day 1 the active day
+            if (!$anyClaimed && empty($taskListByDay[0]['task_list'])) {
+                $taskListByDay[0]['current_day'] = true;
             }
 
             return response()->json(['tasks' => $taskListByDay], 200);
         }
 
         return response()->json(['tasks' => []], 200);
-    } 
-    
+    }
+
 
 
     public function claimTask(Request $request) {
