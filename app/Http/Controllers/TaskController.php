@@ -83,29 +83,29 @@ class TaskController extends Controller
     {
         $currentDate = now();
         $user = User::where('user_id', $user_id)->first();
-    
+
         if ($user) {
             $start_date = $user->start_date;
             $end_date = $user->end_date;
             $currentDay = $currentDate->diffInDays($start_date) + 1; // Calculate the current day
-    
+
             $taskListByDay = [];
-    
+
             $anyClaimed = false; // Flag to track if any task is claimed
-    
+
             for ($day = 1; $day <= 7; $day++) {
                 $taskList = task_detail::where('user_id', $user_id)->where('day', $day)->get();
-    
+
                 $allTasksCompleted = $taskList->every(function ($task) {
                     return $task->status === 'complete';
                 });
-    
+
                 $claimedStatus = $allTasksCompleted && !$taskList->isEmpty();
-    
+
                 if ($claimedStatus) {
                     $anyClaimed = true; // Set the flag if any day is claimed
                 }
-    
+
                 $taskListByDay[] = [
                     'day' => $day,
                     'claimed' => $claimedStatus,
@@ -113,17 +113,17 @@ class TaskController extends Controller
                     'task_list' => $taskList,
                 ];
             }
-    
+
             // If none of the days are claimed or have tasks, make day 1 the current day
-            if (!$anyClaimed && empty($taskListByDay[0]['task_list'])) {
-                $taskListByDay[0]['current_day'] = true;
+            if (!$anyClaimed && empty($taskListByDay[$currentDay - 1]['task_list'])) {
+                $taskListByDay[$currentDay - 1]['current_day'] = true;
             }
-    
+
             return response()->json(['tasks' => $taskListByDay], 200);
         }
-    
+
         return response()->json(['tasks' => []], 200);
-    }
+    } 
     
 
 
